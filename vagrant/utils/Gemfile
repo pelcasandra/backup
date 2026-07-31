@@ -16,4 +16,6 @@ gem 'bson_ext'
 gem 'redis'
 
 # Riak
+# Keep the utility bundle compatible with its Ruby 1.9.3 test environment.
+gem 'i18n', '~> 0.8.0'
 gem 'riak-client'
