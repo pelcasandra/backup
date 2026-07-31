@@ -133,6 +133,19 @@ module Backup
 
         storage.send(:remove!, package)
       end
+
+      it "rejects unsafe package metadata loaded from the cycle file" do
+        unsafe_package = double(
+          Package,
+          trigger: "../outside",
+          time: timestamp
+        )
+        expect(FileUtils).to_not receive(:rm_r)
+
+        expect do
+          storage.send(:remove!, unsafe_package)
+        end.to raise_error(Path::Error, /Invalid Package Trigger/)
+      end
     end # describe '#remove!'
   end
 end

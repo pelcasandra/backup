@@ -33,15 +33,16 @@ module Backup
     end
 
     def filenames
-      if chunk_suffixes.empty?
-        [basename]
-      else
-        chunk_suffixes.map { |suffix| "#{basename}-#{suffix}" }
-      end
+      filenames = if chunk_suffixes.empty?
+                    [basename]
+                  else
+                    chunk_suffixes.map { |suffix| "#{basename}-#{suffix}" }
+                  end
+      filenames.map { |filename| Path.component(filename, "Package Filename") }
     end
 
     def basename
-      "#{trigger}.#{extension}"
+      Path.component("#{trigger}.#{extension}", "Package Filename")
     end
 
     def time_as_object

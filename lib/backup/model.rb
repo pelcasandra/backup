@@ -111,7 +111,7 @@ module Backup
     attr_reader :exception
 
     def initialize(trigger, label, &block)
-      @trigger = trigger.to_s
+      @trigger = Path.component(trigger, "Model Trigger")
       @label   = label.to_s
       @package = Package.new(self)
 

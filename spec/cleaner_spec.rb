@@ -134,6 +134,15 @@ module Backup
           .with(File.join(Config.tmp_path, "test_trigger"))
         Cleaner.remove_packaging(model)
       end
+
+      it "rejects a traversal trigger before removing anything" do
+        unsafe_model = double(trigger: "../outside")
+        expect(FileUtils).to_not receive(:rm_rf)
+
+        expect do
+          Cleaner.remove_packaging(unsafe_model)
+        end.to raise_error(Backup::Path::Error, /Invalid Model Trigger/)
+      end
     end
 
     describe "#remove_package" do
@@ -143,6 +152,15 @@ module Backup
         expect(FileUtils).to receive(:rm_f).with(File.join(Config.tmp_path, "file1"))
         expect(FileUtils).to receive(:rm_f).with(File.join(Config.tmp_path, "file2"))
         Cleaner.remove_package(package)
+      end
+
+      it "rejects a traversal filename before removing anything" do
+        package = double(Backup::Package, filenames: ["../outside"])
+        expect(FileUtils).to_not receive(:rm_f)
+
+        expect do
+          Cleaner.remove_package(package)
+        end.to raise_error(Backup::Path::Error, /Invalid Package Filename/)
       end
     end
 

@@ -78,6 +78,14 @@ module Backup
         package.extension << ".enc"
         expect(package.basename).to eq "test_trigger.tar.enc"
       end
+
+      it "rejects unsafe filename components" do
+        package.extension = "../../outside"
+
+        expect do
+          package.basename
+        end.to raise_error(Backup::Path::Error, /Invalid Package Filename/)
+      end
     end
 
     describe "#time_as_object" do

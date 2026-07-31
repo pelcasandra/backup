@@ -2,12 +2,14 @@
 
 class FilesetBuilder
   def create(root_dir, dir_name, total, file_size)
-    create_dir(root_dir, dir_name)
-    create_fileset(File.join(root_dir, dir_name), total, file_size)
+    dir = File.join(root_dir, safe_component(dir_name))
+    create_dir(dir)
+    create_fileset(dir, total, file_size)
   end
 
-  def create_dir(parent_dir, dir_name)
-    dir = File.join(parent_dir, dir_name)
+  private
+
+  def create_dir(dir)
     Dir.mkdir(dir) unless Dir.exist?(dir)
   end
 
@@ -26,5 +28,13 @@ class FilesetBuilder
       file_path = File.join(dir, file_name)
       create_file(file_path, file_size)
     end
+  end
+
+  def safe_component(value)
+    value = value.to_s
+    invalid = value.empty? || value == "." || value.include?("..") ||
+      value.include?("/") || value.include?("\\") || value.include?("\0")
+    raise ArgumentError, "invalid directory name" if invalid
+    value
   end
 end

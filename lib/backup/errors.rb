@@ -50,4 +50,46 @@ module Backup
   class FatalError < Exception
     include NestedExceptions
   end
+
+  module Path
+    class Error < Backup::Error; end
+
+    class << self
+      def component(value, label)
+        value = value.to_s
+        raise_invalid(label) if invalid_component?(value)
+        value
+      end
+
+      def relative_file(root, value, label)
+        value = value.to_s
+        raise_invalid(label) if invalid_relative_path?(value)
+
+        root = File.realpath(root)
+        path = File.realpath(File.expand_path(value, root))
+        raise_invalid(label) unless path.start_with?(root + File::SEPARATOR)
+        path
+      end
+
+      private
+
+      def invalid_component?(value)
+        value.empty? || value == "." || value.include?("..") ||
+          value.include?("/") || value.include?("\\") || value.include?("\0")
+      end
+
+      def invalid_relative_path?(value)
+        value.empty? || value == "." || value.start_with?("/") ||
+          value.include?("..") || value.include?("\\") || value.include?("\0")
+      end
+
+      def raise_invalid(label)
+        raise Error, <<-EOS
+          Invalid #{label}
+          #{label} must stay within its intended directory and may not be empty,
+          '.', contain '..', or contain path separators.
+        EOS
+      end
+    end
+  end
 end
