@@ -651,6 +651,10 @@ describe "Backup::CLI" do
   describe "Helpers" do
     let(:helpers) { Backup::CLI::Helpers }
 
+    it "does not expose shell command execution" do
+      expect(helpers).not_to respond_to(:exec!)
+    end
+
     describe "#overwrite?" do
       it "prompts user and accepts confirmation" do
         expect(File).to receive(:exist?).with("a/path").and_return(true)
