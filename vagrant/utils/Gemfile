@@ -1,16 +1,16 @@
 source "https://rubygems.org"
 
-gem 'rake'
+ruby '>= 3.2.0'
+
+gem 'rake', '~> 13.2'
 
 # MySQL, PostgreSQL
-gem 'activerecord'
-gem 'activerecord-mysql2-adapter'
-gem 'iconv'
-gem 'pg'
+gem 'activerecord', '~> 7.2.3', '>= 7.2.3.1'
+gem 'mysql2', '~> 0.5'
+gem 'pg', '~> 1.1'
 
 # MongoDB
 gem 'mongo'
-gem 'bson_ext'
 
 # Redis
 gem 'redis'
