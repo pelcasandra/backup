@@ -52,8 +52,9 @@ module Backup
       ##
       # Return the remote path for the current or given package.
       def remote_path(pkg = package)
-        path.empty? ? File.join(pkg.trigger, pkg.time) :
-                      File.join(path, pkg.trigger, pkg.time)
+        trigger = Path.component(pkg.trigger, "Package Trigger")
+        time = Path.component(pkg.time, "Package Time")
+        path.empty? ? File.join(trigger, time) : File.join(path, trigger, time)
       end
       alias :remote_path_for :remote_path
 

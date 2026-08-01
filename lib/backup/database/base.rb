@@ -15,7 +15,8 @@ module Backup
       def initialize(model, database_id = nil)
         @model = model
         @database_id = database_id.to_s.gsub(/\W/, "_") if database_id
-        @dump_path = File.join(Config.tmp_path, model.trigger, "databases")
+        trigger = Path.component(model.trigger, "Model Trigger")
+        @dump_path = File.join(Config.tmp_path, trigger, "databases")
         load_defaults!
       end
 

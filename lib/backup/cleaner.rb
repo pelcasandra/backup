@@ -9,8 +9,9 @@ module Backup
       # then removes the files.
       def prepare(model)
         messages = []
+        trigger = Path.component(model.trigger, "Model Trigger")
 
-        packaging_folder = File.join(Config.tmp_path, model.trigger)
+        packaging_folder = File.join(Config.tmp_path, trigger)
         if File.exist?(packaging_folder)
           messages << <<-EOS
             The temporary packaging folder still exists!
@@ -20,7 +21,7 @@ module Backup
           FileUtils.rm_rf(packaging_folder)
         end
 
-        package_files = package_files_for(model.trigger)
+        package_files = package_files_for(trigger)
         unless package_files.empty?
           # the chances of the packaging folder AND
           # the package files existing are practically nil
@@ -50,7 +51,8 @@ module Backup
       # Remove the temporary folder used during packaging
       def remove_packaging(model)
         Logger.info "Cleaning up the temporary files..."
-        FileUtils.rm_rf(File.join(Config.tmp_path, model.trigger))
+        trigger = Path.component(model.trigger, "Model Trigger")
+        FileUtils.rm_rf(File.join(Config.tmp_path, trigger))
       end
 
       ##
@@ -59,7 +61,8 @@ module Backup
       def remove_package(package)
         Logger.info "Cleaning up the package files..."
         package.filenames.each do |file|
-          FileUtils.rm_f(File.join(Config.tmp_path, file))
+          filename = Path.component(file, "Package Filename")
+          FileUtils.rm_f(File.join(Config.tmp_path, filename))
         end
       end
 
@@ -68,8 +71,9 @@ module Backup
       # when errors occur during the backup
       def warnings(model)
         messages = []
+        trigger = Path.component(model.trigger, "Model Trigger")
 
-        packaging_folder = File.join(Config.tmp_path, model.trigger)
+        packaging_folder = File.join(Config.tmp_path, trigger)
         if File.exist?(packaging_folder)
           messages << <<-EOS
             The temporary packaging folder still exists!
@@ -78,7 +82,7 @@ module Backup
           EOS
         end
 
-        package_files = package_files_for(model.trigger)
+        package_files = package_files_for(trigger)
         unless package_files.empty?
           # the chances of the packaging folder AND
           # the package files existing are practically nil
@@ -105,6 +109,7 @@ module Backup
       private
 
       def package_files_for(trigger)
+        trigger = Path.component(trigger, "Model Trigger")
         Dir[File.join(Config.tmp_path, "#{trigger}.tar{,[.-]*}")]
       end
     end

@@ -39,7 +39,8 @@ module Backup
     # Reads and returns the contents of the provided file path,
     # relative from the Backup::TEMPLATE_PATH
     def file_contents(file)
-      File.read(File.join(Backup::TEMPLATE_PATH, file))
+      path = Path.relative_file(Backup::TEMPLATE_PATH, file, "Template Path")
+      File.read(path)
     end
   end
 end
