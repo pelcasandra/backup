@@ -356,11 +356,6 @@ module Backup
           /^[Yy]/ =~ $stdin.gets
         end
 
-        def exec!(cmd)
-          puts "Launching: #{cmd}"
-          exec(cmd)
-        end
-
         def is_backup_error?(error)
           error.class.ancestors.include? Backup::Error
         end
