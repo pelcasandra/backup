@@ -48,7 +48,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "qiniu", "~> 6.5"
   gem.add_dependency "syslog"
   gem.add_dependency "thor", "~> 1.3"
-  gem.add_dependency "twitter", "~> 6.0"
+  gem.add_dependency "twitter", "~> 8.3"
   gem.add_dependency "unf", "0.1.3" # for fog/AWS
   gem.add_dependency "webrick"
 
