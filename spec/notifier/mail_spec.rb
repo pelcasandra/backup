@@ -418,7 +418,7 @@ module Backup
           end
         end
 
-        it "sets the proper options" do
+        it "should set the proper options" do
           email = notifier.send(:new_email)
           expect(email.delivery_method).to be_an_instance_of ::Mail::Sendmail
 
@@ -430,7 +430,7 @@ module Backup
 
           settings = email.delivery_method.settings
           expect(settings[:location]).to eq "/path/to/sendmail"
-          expect(settings[:arguments]).to eq %w[-i -t -X/tmp/traffic.log]
+          expect(settings[:arguments]).to eq "-i -t -X/tmp/traffic.log"
         end
       end
 
@@ -447,7 +447,7 @@ module Backup
           end
         end
 
-        it "sets the proper options" do
+        it "should set the proper options" do
           email = notifier.send(:new_email)
           expect(email.delivery_method).to be_an_instance_of ::Mail::Exim
 
@@ -459,7 +459,7 @@ module Backup
 
           settings = email.delivery_method.settings
           expect(settings[:location]).to eq "/path/to/exim"
-          expect(settings[:arguments]).to eq %w[-i -t -X/tmp/traffic.log]
+          expect(settings[:arguments]).to eq "-i -t -X/tmp/traffic.log"
         end
       end
 
