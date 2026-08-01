@@ -1,7 +1,9 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.0
+  TargetRubyVersion: 4.0
+  NewCops: disable
+  SuggestExtensions: false
   Include:
     - "Gemfile"
     - "Rakefile"
@@ -21,28 +23,31 @@ AllCops:
 Style/Documentation:
   Enabled: false
 
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
 
-Style/AlignParameters:
+Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
 
-Style/MultilineMethodCallIndentation:
+Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
 Style/HashSyntax:
   EnforcedStyle: ruby19
 
-Style/AlignHash:
+Layout/HashAlignment:
   EnforcedLastArgumentHashStyle: ignore_implicit
 
-Style/IndentArray:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
 Style/FormatString:

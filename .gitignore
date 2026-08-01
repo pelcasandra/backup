@@ -8,5 +8,6 @@ vagrant/spec/live.yml
 *.swp
 *.swo
 .ruby-*
+!.ruby-version
 doc/
 tmp/

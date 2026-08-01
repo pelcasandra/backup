@@ -20,5 +20,5 @@
 **Change the information below to match the details of your computer**
 
 * Operating system: Ubuntu Server 14.04.5
-* Ruby version: 2.3.1
+* Ruby version: 4.0.6
 * Tools or services used by backup: MySQL 5.7.9, GnuPG 1.4.16
