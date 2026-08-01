@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ${{ fromJSON(github.event_name == 'pull_request' && '["2.7"]' || '["2.5", "2.6", "2.7", "3.0", "3.1"]') }}
+        ruby: ["4.0.6"]
         shard: ${{ fromJSON(github.event_name == 'pull_request' && '[0, 1, 2, 3]' || '[0]') }}
     env:
       BUNDLE_WITHOUT: no_ci

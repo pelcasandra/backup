@@ -51,9 +51,7 @@ task :release do
   print "Enter new version: "
   new_version = $stdin.gets.chomp
 
-  unless valid_version?(new_version)
-    abort "ERROR: Invalid version number: #{new_version.inspect}"
-  end
+  abort "ERROR: Invalid version number: #{new_version.inspect}" unless valid_version?(new_version)
 
   puts "Creating new version: #{new_version}"
 
@@ -90,7 +88,7 @@ end
 
 namespace :docker do
   task :build do
-    sh "docker-compose build"
+    sh "docker compose build"
   end
   desc "Prepare the bundle on the Docker machine"
   task prepare: ["docker:build"] do
@@ -116,6 +114,6 @@ namespace :docker do
   end
 
   def run_in_docker_container(command)
-    sh "docker-compose run --rm ruby_backup_tester #{command}"
+    sh "docker compose run --rm ruby_backup_tester #{command}"
   end
 end
