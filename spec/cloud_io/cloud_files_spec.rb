@@ -5,6 +5,20 @@ module Backup # rubocop:disable Metrics/ModuleLength
   describe CloudIO::CloudFiles do
     let(:connection) { double }
 
+    it 'loads the Rackspace storage provider with fog-core 2.6' do
+      Fog.mock!
+
+      storage = Fog::Storage.new(
+        provider: 'Rackspace',
+        rackspace_username: 'username',
+        rackspace_api_key: 'api-key'
+      )
+
+      expect(storage).to be_a(Fog::Storage::Rackspace::Mock)
+    ensure
+      Fog.unmock!
+    end
+
     describe "#upload" do
       before do
         expect_any_instance_of(described_class).to receive(:create_containers)
