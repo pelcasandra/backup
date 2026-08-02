@@ -65,9 +65,14 @@ module Backup
         value = value.to_s
         raise_invalid(label) if invalid_relative_path?(value)
 
+        realpath_within(root, File.expand_path(value, root), label)
+      end
+
+      def realpath_within(root, value, label)
         root = File.realpath(root)
-        path = File.realpath(File.expand_path(value, root))
-        raise_invalid(label) unless path.start_with?(root + File::SEPARATOR)
+        path = File.realpath(value)
+        prefix = root == File::SEPARATOR ? root : root + File::SEPARATOR
+        raise_invalid(label) unless path == root || path.start_with?(prefix)
         path
       end
 

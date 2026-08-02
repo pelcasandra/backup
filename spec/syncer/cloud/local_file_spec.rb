@@ -63,13 +63,41 @@ module Backup
           ).to eq(["sync_dir/one.file"])
         end
 
-        it "follows symlinks" do
-          FileUtils.ln_s File.join(@tmpdir, "base_dir.file"),
+        it "follows symlinks that remain within the sync root" do
+          FileUtils.ln_s(
+            File.join(@tmpdir, "base_dir.file"),
             File.join(@tmpdir, "sync_dir/link")
+          )
+          FileUtils.ln_s(
+            File.join(@tmpdir, "sync_dir/sub_dir"),
+            File.join(@tmpdir, "sync_dir/sub_dir_link")
+          )
 
           found = described_class.find(@tmpdir)
           expect(found.keys).to include("sync_dir/link")
           expect(found["sync_dir/link"].md5).to eq(test_files["base_dir.file"])
+          expect(found.keys).to include("sync_dir/sub_dir_link/three.file")
+          expect(found["sync_dir/sub_dir_link/three.file"].md5)
+            .to eq(test_files["sync_dir/sub_dir/three.file"])
+        end
+
+        it "rejects file symlinks that escape the sync root" do
+          FileUtils.ln_s(
+            File.join(@tmpdir, "base_dir.file"),
+            File.join(@tmpdir, "sync_dir/link")
+          )
+
+          expect do
+            described_class.find(File.join(@tmpdir, "sync_dir"))
+          end.to raise_error(Backup::Path::Error, /Invalid Sync Source Path/)
+        end
+
+        it "rejects directory symlinks that escape the sync root" do
+          FileUtils.ln_s @tmpdir, File.join(@tmpdir, "sync_dir/link")
+
+          expect do
+            described_class.find(File.join(@tmpdir, "sync_dir"))
+          end.to raise_error(Backup::Path::Error, /Invalid Sync Source Path/)
         end
       end
     end
