@@ -86,6 +86,17 @@ module Backup
           end.to raise_error(Backup::Path::Error, /Invalid Sync Source Path/)
         end
 
+        it 'ignores excluded symlinks that escape the sync root' do
+          FileUtils.ln_s File.join(@tmpdir, 'base_dir.file'),
+            File.join(@tmpdir, 'sync_dir/link')
+
+          found = described_class.find(
+            File.join(@tmpdir, 'sync_dir'), ['**/link']
+          )
+
+          expect(found).not_to include('link')
+        end
+
         it 'rejects directory symlinks that escape the sync root' do
           FileUtils.ln_s @tmpdir, File.join(@tmpdir, 'sync_dir/link')
 

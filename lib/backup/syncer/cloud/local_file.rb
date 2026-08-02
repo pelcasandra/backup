@@ -54,16 +54,14 @@ module Backup
                     path, excludes, root, logical_root, ancestors
                   )
                 end
-              elsif File.file?(path)
+              elsif File.file?(path) && !exclude?(excludes, path)
                 source_path = Path.realpath_within(
                   root, path, 'Sync Source Path'
                 )
                 relative_path = path.sub(logical_root + "/", "")
                 if file = new(source_path, relative_path)
-                  unless exclude?(excludes, path)
-                    file.md5 = Digest::MD5.file(file.path).hexdigest
-                    found << file
-                  end
+                  file.md5 = Digest::MD5.file(file.path).hexdigest
+                  found << file
                 end
               end
             end
