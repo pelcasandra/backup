@@ -1,5 +1,19 @@
 require "backup/cloud_io/base"
-require "fog/rackspace"
+require 'fog/core'
+
+module Fog
+  module Rackspace
+    # fog-rackspace 0.1.6 uses names that fog-core 2.6 rejects as constants.
+    def self.service(new_service, constant_string)
+      constant_string = 'CDNV2' if constant_string == 'CDN v2'
+      constant_string = 'ComputeV2' if constant_string == 'Compute v2'
+
+      super(new_service, constant_string)
+    end
+  end
+end
+
+require 'fog/rackspace'
 require "digest/md5"
 
 module Backup
