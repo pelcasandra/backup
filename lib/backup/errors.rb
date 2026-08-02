@@ -65,13 +65,29 @@ module Backup
         value = value.to_s
         raise_invalid(label) if invalid_relative_path?(value)
 
+        realpath_within(root, File.expand_path(value, root), label)
+      end
+
+      def realpath_within(root, value, label)
         root = File.realpath(root)
-        path = File.realpath(File.expand_path(value, root))
-        raise_invalid(label) unless path.start_with?(root + File::SEPARATOR)
+        path = File.realpath(value)
+        raise_escape(label) unless within?(root, path)
+        path
+      end
+
+      def expand_within(root, value, label)
+        root = File.expand_path(root)
+        path = File.expand_path(value, root)
+        raise_escape(label) unless within?(root, path)
         path
       end
 
       private
+
+      def within?(root, path)
+        prefix = root == File::SEPARATOR ? root : root + File::SEPARATOR
+        path == root || path.start_with?(prefix)
+      end
 
       def invalid_component?(value)
         value.empty? || value == "." || value.include?("..") ||
@@ -88,6 +104,13 @@ module Backup
           Invalid #{label}
           #{label} must stay within its intended directory and may not be empty,
           '.', contain '..', or contain path separators.
+        EOS
+      end
+
+      def raise_escape(label)
+        raise Error, <<-EOS
+          Invalid #{label}
+          #{label} must stay within its intended directory.
         EOS
       end
     end
