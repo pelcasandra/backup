@@ -10,10 +10,14 @@ gem 'mysql2', '~> 0.5'
 gem 'pg', '~> 1.6'
 
 # MongoDB
-gem 'mongo'
+gem 'mongo', '~> 2.25'
 
 # Redis
 gem 'redis'
 
 # Riak
 gem 'riak-client'
+
+group :test do
+  gem 'rspec', '~> 3.13'
+end
