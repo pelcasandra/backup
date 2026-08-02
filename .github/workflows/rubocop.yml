@@ -17,6 +17,8 @@ jobs:
       BUNDLE_WITHOUT: no_ci
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install deps
         run: sudo apt-get install -qf libcurl4-openssl-dev
       - name: Install ruby
