@@ -54,18 +54,18 @@ module MongoDBTask
     def drop_all
       puts 'Dropping Databases...'
       DATABASES.each_key do |db_name|
-        mongo_client.drop_database db_name.to_s
+        mongo_client.use(db_name.to_s).database.drop
       end
     end
 
     def create_all
       DATABASES.each do |db_name, collections|
         puts "Creating Database '#{ db_name }'..."
-        db = mongo_client.db db_name.to_s
+        db = mongo_client.use(db_name.to_s).database
 
         collections.each do |collection_name, record_count|
-          coll = db.collection collection_name.to_s
-          record_count.times {|n| coll.insert number: n }
+          coll = db[collection_name.to_s]
+          record_count.times { |n| coll.insert_one number: n }
         end
       end
     end
@@ -73,7 +73,10 @@ module MongoDBTask
     private
 
     def mongo_client
-      @mongo_client ||= Mongo::MongoClient.new
+      @mongo_client ||= Mongo::Client.new(
+        ['127.0.0.1:27017'],
+        database: 'admin'
+      )
     end
   end
 end
