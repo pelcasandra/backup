@@ -15,7 +15,7 @@ module Backup
             dir = File.expand_path(dir)
             hash = {}
             find_md5(dir, excludes).each do |file|
-              relative_path = file.relative_path || file.path.sub("#{dir}/", "")
+              relative_path = file.relative_path || file.path.sub(dir + "/", "")
               hash[relative_path] = file
             end
             hash
@@ -42,7 +42,7 @@ module Backup
           end
 
           def find_md5_within(dir, excludes, root, logical_root, ancestors = [])
-            safe_dir = Path.realpath_within(root, dir, "Sync Source Path")
+            safe_dir = Path.realpath_within(root, dir, 'Sync Source Path')
             return [] if ancestors.include?(safe_dir)
 
             ancestors += [safe_dir]
@@ -56,9 +56,9 @@ module Backup
                 end
               elsif File.file?(path) && !exclude?(excludes, path)
                 source_path = Path.realpath_within(
-                  root, path, "Sync Source Path"
+                  root, path, 'Sync Source Path'
                 )
-                relative_path = path.sub("#{logical_root}/", "")
+                relative_path = path.sub(logical_root + "/", "")
                 if file = new(source_path, relative_path)
                   file.md5 = Digest::MD5.file(file.path).hexdigest
                   found << file

@@ -20,3 +20,11 @@ RUN apt-get update && \
 
 ENV APP_HOME=/usr/src/backup
 WORKDIR $APP_HOME
+
+## 4. Run the application as an unprivileged user ##
+
+RUN groupadd --gid 1000 backup-app && \
+    useradd --uid 1000 --gid backup-app --create-home --shell /bin/bash backup-app && \
+    chown backup-app:backup-app $APP_HOME
+
+USER backup-app

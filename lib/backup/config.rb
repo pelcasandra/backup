@@ -100,7 +100,9 @@ module Backup
           # or expanded relative to PWD.
           new_path = File.expand_path(path)
           unless path == new_path
-            new_path = File.join(root_path, path) if root_path
+            new_path = Path.expand_within(
+              root_path, path, 'Configuration Path'
+            ) if root_path
           end
         end
         instance_variable_set(:"@#{name}", new_path) if new_path

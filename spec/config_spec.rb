@@ -224,6 +224,14 @@ module Backup
               config.send(:set_path_variable, "var", "foo", "none", "/root/path")
               expect(config.instance_variable_get(:@var)).to eq("/root/path/foo")
             end
+
+            it 'rejects a relative path that escapes the root path' do
+              expect do
+                config.send(
+                  :set_path_variable, 'var', '../outside', 'none', '/root/path'
+                )
+              end.to raise_error(Path::Error, /Invalid Configuration Path/)
+            end
           end
           context "when a root_path is not given" do
             it "should expand the path" do
