@@ -30,6 +30,7 @@ module Backup
   COMPRESSOR_PATH    = File.join(LIBRARY_PATH, "compressor")
   ENCRYPTOR_PATH     = File.join(LIBRARY_PATH, "encryptor")
   NOTIFIER_PATH      = File.join(LIBRARY_PATH, "notifier")
+  UPLOADER_PATH      = File.join(LIBRARY_PATH, "uploader")
   TEMPLATE_PATH      = File.expand_path("../../templates", __FILE__)
 
   ##
@@ -47,6 +48,13 @@ module Backup
     autoload :RSync,      File.join(STORAGE_PATH, "rsync")
     autoload :Local,      File.join(STORAGE_PATH, "local")
     autoload :Qiniu,      File.join(STORAGE_PATH, "qiniu")
+    autoload :Outbox,     File.join(STORAGE_PATH, "outbox")
+  end
+
+  ##
+  # Autoload uploaders used by durable outbox storages
+  module Uploader
+    autoload :S3, File.join(UPLOADER_PATH, "s3")
   end
 
   ##
@@ -130,6 +138,7 @@ module Backup
     model
     config
     cli
+    cli/outbox
     package
     packager
     pipeline

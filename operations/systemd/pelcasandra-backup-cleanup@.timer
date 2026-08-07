@@ -1,0 +1,12 @@
+[Unit]
+Description=Run local cleanup for backup model %i even when backup jobs stop
+
+[Timer]
+OnBootSec=10m
+OnUnitActiveSec=1h
+RandomizedDelaySec=5m
+Persistent=true
+Unit=pelcasandra-backup-cleanup@%i.service
+
+[Install]
+WantedBy=timers.target

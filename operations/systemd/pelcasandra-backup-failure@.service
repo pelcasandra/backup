@@ -1,0 +1,6 @@
+[Unit]
+Description=Signal a pelcasandra backup unit failure for %i
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/logger --priority daemon.err --tag pelcasandra-backup "Backup unit %i failed; inspect journalctl -u %i"

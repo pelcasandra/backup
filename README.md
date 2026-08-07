@@ -12,6 +12,10 @@ operations. It provides an elegant DSL in Ruby for _modeling_ your backups. Back
 databases, storage protocols/services, syncers, compressors, encryptors and notifiers which you can mix and match. It
 was built with modularity, extensibility and simplicity in mind.
 
+Durable local outboxes, checksum sidecars, upload-only retries, and independent
+systemd scheduling can be configured in the same model DSL as databases and
+archives. See the generic [operations guide](operations/README.md).
+
 [Installation][] &middot; [Release Notes][] &middot; [Documentation][] &middot; [Issues][] &middot;  [Chat][Gitter]
 
 ## Project Status: Looking for contributors and maintainers ##

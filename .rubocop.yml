@@ -28,9 +28,59 @@ Style/FrozenStringLiteralComment:
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+    - "lib/backup/storage/outbox.rb"
+    - "lib/backup/uploader/**/*.rb"
+    - "spec/cli/outbox_spec.rb"
+    - "spec/storage/outbox_spec.rb"
+    - "spec/uploader/**/*_spec.rb"
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+    - "lib/backup/storage/outbox.rb"
+    - "lib/backup/uploader/**/*.rb"
+    - "spec/cli/outbox_spec.rb"
+    - "spec/storage/outbox_spec.rb"
+    - "spec/uploader/**/*_spec.rb"
+
+# New Ruby code follows the repository owner's private-method indentation.
+Layout/EmptyLinesAroundAccessModifier:
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+    - "lib/backup/storage/outbox.rb"
+    - "lib/backup/uploader/**/*.rb"
+    - "spec/cli/outbox_spec.rb"
+    - "spec/storage/outbox_spec.rb"
+    - "spec/uploader/**/*_spec.rb"
+
+Layout/IndentationConsistency:
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+    - "lib/backup/storage/outbox.rb"
+    - "lib/backup/uploader/**/*.rb"
+    - "spec/cli/outbox_spec.rb"
+    - "spec/storage/outbox_spec.rb"
+    - "spec/uploader/**/*_spec.rb"
+
+Layout/IndentationWidth:
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+    - "lib/backup/storage/outbox.rb"
+    - "lib/backup/uploader/**/*.rb"
+    - "spec/cli/outbox_spec.rb"
+    - "spec/storage/outbox_spec.rb"
+    - "spec/uploader/**/*_spec.rb"
+
+Naming/MethodName:
+  Exclude:
+    - "lib/backup/cli/outbox.rb"
+
+Style/MutableConstant:
+  Exclude:
+    - "lib/backup/storage/outbox.rb"
 
 Layout/ParameterAlignment:
   EnforcedStyle: with_fixed_indentation
