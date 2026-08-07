@@ -14,8 +14,7 @@ module Backup
         def remote_key(destination)
           parts = [path, destination].reject { it.to_s.empty? }
             .flat_map { it.to_s.split('/') }
-          parts.map! { Path.component(it, 'Object Key Component') }
-          File.join(parts)
+          Path.join_components(*parts, label: 'Object Key Component')
         end
     end
   end

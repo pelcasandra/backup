@@ -61,6 +61,17 @@ module Backup
         value
       end
 
+      def join_within(root, *components, label:)
+        relative_path = join_components(*components, label:)
+        expand_within(root, relative_path, label)
+      end
+
+      def join_components(*components, label:)
+        raise_invalid(label) if components.empty?
+
+        components.map { component(it, label) }.join(File::SEPARATOR)
+      end
+
       def relative_file(root, value, label)
         value = value.to_s
         raise_invalid(label) if invalid_relative_path?(value)

@@ -38,6 +38,15 @@ module Backup
         end.to raise_error(Path::Error, /Invalid Object Key Component/)
       end
 
+      it 'rejects traversal in the configured prefix before calling the transport' do
+        uploader.path = '../outside'
+        expect(cloud_io).not_to receive(:upload)
+
+        expect do
+          uploader.upload('/local/package.tar', 'application/package.tar')
+        end.to raise_error(Path::Error, /Invalid Object Key Component/)
+      end
+
       it 'sends Standard storage headers for S3-compatible providers' do
         cloud_io = CloudIO::S3.new(storage_class: :standard)
 

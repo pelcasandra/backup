@@ -57,18 +57,27 @@ module Backup
         def persist!(time)
           sources = package.filenames.map do |filename|
             filename = Path.component(filename, 'Package Filename')
-            File.join(Config.tmp_path, filename)
+            Path.join_within(
+              Config.tmp_path,
+              filename,
+              label: 'Temporary Package Path'
+            )
           end
-          missing = sources.reject { File.file?(it) && !File.zero?(it) }
+          missing = sources.reject { plain_path?(it, :file?) && !File.zero?(it) }
           raise Error, "Package files are missing or empty: #{missing.join(', ')}" unless missing.empty?
 
           directory = local_directory(time)
           raise Error, "Outbox package already exists: #{directory}" if File.exist?(directory)
 
           FileUtils.mkdir_p(directory)
+          directory = existing_local_directory(time)
           transfer_method = package_movable? ? :mv : :cp
           sources.each do |source|
-            destination = File.join(directory, File.basename(source))
+            destination = Path.join_within(
+              directory,
+              File.basename(source),
+              label: 'Outbox Package File'
+            )
             Logger.info "Persisting '#{destination}'..."
             FileUtils.public_send(transfer_method, source, destination)
             write_sidecar(destination)
@@ -99,31 +108,45 @@ module Backup
 
         def upload_artifact(artifact, time)
           [artifact.source, artifact.sidecar].each do |source|
-            destination = File.join(package.trigger, time, File.basename(source))
+            destination = Path.join_components(
+              package.trigger,
+              time,
+              File.basename(source),
+              label: 'Object Key Component'
+            )
             uploader.upload(source, destination)
           end
         end
 
         def local_directory(time)
-          File.expand_path(File.join(path, package.trigger, time))
+          Path.join_within(
+            path,
+            package.trigger,
+            time,
+            label: 'Outbox Package Path'
+          )
         end
 
         def existing_local_directory(time)
-          root = File.expand_path(File.join(path, package.trigger))
+          root = model_directory
           directory = local_directory(time)
           raise Error, "Outbox package not found: #{directory}" unless
-            File.directory?(root) && File.directory?(directory)
+            plain_path?(root, :directory?) && plain_path?(directory, :directory?)
 
           Path.realpath_within(root, directory, 'Outbox Package Path')
         end
 
         def cleanup_outbox(cutoff)
-          root = File.expand_path(File.join(path, package.trigger))
-          return [] unless File.directory?(root)
+          root = model_directory
+          return [] unless plain_path?(root, :directory?)
 
           real_root = File.realpath(root)
           Dir.children(root).sort.filter_map do |entry|
-            candidate = File.join(root, entry)
+            candidate = Path.join_within(
+              root,
+              entry,
+              label: 'Outbox Package Path'
+            )
             next unless removable_directory?(real_root, candidate)
             next unless outbox_mtime(candidate) < cutoff
 
@@ -170,10 +193,22 @@ module Backup
           sources = Dir.children(directory).filter_map do |entry|
             next if entry.start_with?('.') || entry.end_with?(SIDECAR_SUFFIX)
 
-            candidate = File.join(directory, entry)
+            candidate = Path.join_within(
+              directory,
+              entry,
+              label: 'Outbox Package File'
+            )
             File.mtime(candidate) if plain_path?(candidate, :file?)
           end
           sources.empty? ? File.mtime(directory) : sources.max
+        end
+
+        def model_directory
+          Path.join_within(
+            path,
+            package.trigger,
+            label: 'Outbox Model Path'
+          )
         end
 
         def package_movable?
@@ -212,8 +247,20 @@ module Backup
         attr_reader :source, :sidecar
 
         def initialize(directory, filename)
-          @source = plain_file(File.join(directory, filename))
-          @sidecar = plain_file("#{@source}#{SIDECAR_SUFFIX}")
+          @source = plain_file(
+            Path.join_within(
+              directory,
+              filename,
+              label: 'Outbox Package File'
+            )
+          )
+          @sidecar = plain_file(
+            Path.join_within(
+              directory,
+              "#{filename}#{SIDECAR_SUFFIX}",
+              label: 'Outbox Checksum File'
+            )
+          )
         end
 
         def verify!

@@ -102,6 +102,21 @@ module Backup
         expect(valid_checksum?(stored_directory, 'test_trigger.tar')).to be(true)
       end
 
+      it 'rejects a symlinked temporary package before persistence' do
+        storage = build_storage
+        outside = File.join(@sandbox, 'outside.tar')
+        source = File.join(@temporary_path, storage.package.filenames.first)
+        File.write(outside, 'sensitive data')
+        File.symlink(outside, source)
+
+        expect do
+          storage.perform!
+        end.to raise_error(described_class::Error, /files are missing or empty/)
+        expect(File.read(outside)).to eq('sensitive data')
+        expect(File.exist?(stored_directory)).to be(false)
+        expect(storage.uploader.uploads).to be_empty
+      end
+
       it 'sets the model failure status after preserving a failed upload' do
         storage = build_storage(failure: RuntimeError.new('remote unavailable'))
         write_packages(storage)
@@ -146,6 +161,41 @@ module Backup
         end.to raise_error(described_class::IntegrityError, /SHA-256 mismatch/)
         expect(storage.uploader.uploads).to be_empty
       end
+
+      it 'rejects a timestamp that could escape the model outbox' do
+        storage = build_storage
+
+        expect do
+          storage.retry_upload!('../outside')
+        end.to raise_error(Path::Error, /Invalid Package Time/)
+        expect(storage.uploader.uploads).to be_empty
+      end
+
+      it 'rejects an untrusted artifact name before upload' do
+        storage = build_storage
+        FileUtils.mkdir_p(stored_directory)
+        source = File.join(stored_directory, 'forged..tar')
+        File.write(source, 'forged data')
+        write_checksum(source)
+
+        expect do
+          storage.retry_upload!(timestamp)
+        end.to raise_error(Path::Error, /Invalid Outbox Package File/)
+        expect(storage.uploader.uploads).to be_empty
+      end
+
+      it 'rejects a symlinked package directory before upload' do
+        storage = build_storage
+        outside = File.join(@sandbox, 'outside-package')
+        FileUtils.mkdir_p(File.dirname(stored_directory))
+        FileUtils.mkdir_p(outside)
+        File.symlink(outside, stored_directory)
+
+        expect do
+          storage.retry_upload!(timestamp)
+        end.to raise_error(described_class::Error, /Outbox package not found/)
+        expect(storage.uploader.uploads).to be_empty
+      end
     end
 
     describe '#cleanup!' do
@@ -178,6 +228,17 @@ module Backup
           stale_package
         )
         expect(File.directory?(fresh_directory)).to be(true)
+      end
+
+      it 'rejects an untrusted package entry before cleanup' do
+        storage = build_storage
+        FileUtils.mkdir_p(stored_directory)
+        File.write(File.join(stored_directory, 'forged..tar'), 'forged data')
+
+        expect do
+          storage.cleanup!(now: Time.utc(2026, 8, 6, 12))
+        end.to raise_error(Path::Error, /Invalid Outbox Package File/)
+        expect(File.directory?(stored_directory)).to be(true)
       end
     end
 
@@ -260,6 +321,11 @@ module Backup
         source = File.join(directory, filename)
         expected = Digest::SHA256.file(source).hexdigest
         File.read("#{source}.sha256") == "#{expected}  #{filename}\n"
+      end
+
+      def write_checksum(source)
+        digest = Digest::SHA256.file(source).hexdigest
+        File.write("#{source}.sha256", "#{digest}  #{File.basename(source)}\n")
       end
   end
 end
