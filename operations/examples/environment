@@ -1,0 +1,4 @@
+# Install as /etc/backup/TRIGGER.env with mode 0600 and root ownership.
+# Use credentials scoped to Object Read & Write for one bucket.
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=

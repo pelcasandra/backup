@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SOURCE_DIRECTORY=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+RUBY_HOME=${RUBY_HOME:-/root/.rbenv/versions/4.0.6}
+RUBY_BIN=${RUBY_HOME}/bin/ruby
+GEM_BIN=${RUBY_HOME}/bin/gem
+INSTALL_ROOT=/opt/pelcasandra-backup
+GEM_HOME_PATH=${INSTALL_ROOT}/gems
+EXECUTABLE_PATH=/usr/local/libexec/pelcasandra-backup
+SYSTEMD_PATH=/etc/systemd/system
+CONFIG_PATH=/etc/backup
+STATE_PATH=/var/lib/pelcasandra-backup
+DOCUMENTATION_PATH=/usr/share/doc/pelcasandra-backup
+
+if [[ $(id -u) -ne 0 ]]; then
+  echo 'Run this installer as root.' >&2
+  exit 1
+fi
+
+for executable in "${RUBY_BIN}" "${GEM_BIN}" /usr/bin/git /usr/bin/systemctl /usr/bin/flock; do
+  if [[ ! -x ${executable} ]]; then
+    echo "Required executable is missing: ${executable}" >&2
+    exit 1
+  fi
+done
+
+if [[ -n $(git -C "${SOURCE_DIRECTORY}" status --porcelain) ]]; then
+  echo 'Refusing to install from a dirty source checkout.' >&2
+  exit 1
+fi
+
+SOURCE_REVISION=$(git -C "${SOURCE_DIRECTORY}" rev-parse HEAD)
+SOURCE_URL=$(git -C "${SOURCE_DIRECTORY}" remote get-url origin)
+ENGINE_VERSION=$("${RUBY_BIN}" -I"${SOURCE_DIRECTORY}/lib" -rbackup/version -e 'print Backup::VERSION')
+TEMPORARY_DIRECTORY=$(mktemp -d)
+trap 'rm -rf -- "${TEMPORARY_DIRECTORY}"' EXIT
+PACKAGE_PATH=${TEMPORARY_DIRECTORY}/backup-${ENGINE_VERSION}.gem
+
+(
+  cd "${SOURCE_DIRECTORY}"
+  "${GEM_BIN}" build backup.gemspec --output "${PACKAGE_PATH}"
+)
+
+install -d -o root -g root -m 0755 "${INSTALL_ROOT}" "${GEM_HOME_PATH}" "${EXECUTABLE_PATH}"
+install -d -o root -g root -m 0750 "${CONFIG_PATH}"
+install -d -o root -g root -m 0700 "${STATE_PATH}" "${STATE_PATH}/.tmp" "${STATE_PATH}/.data"
+install -d -o root -g root -m 0755 "${DOCUMENTATION_PATH}" "${DOCUMENTATION_PATH}/examples"
+
+GEM_HOME="${GEM_HOME_PATH}" GEM_PATH="${GEM_HOME_PATH}" \
+  "${GEM_BIN}" install --local --no-document \
+    --install-dir "${GEM_HOME_PATH}" \
+    --bindir "${EXECUTABLE_PATH}" \
+    "${PACKAGE_PATH}"
+
+install -m 0644 "${SOURCE_DIRECTORY}"/operations/systemd/*.service "${SYSTEMD_PATH}/"
+install -m 0644 "${SOURCE_DIRECTORY}"/operations/systemd/*.timer "${SYSTEMD_PATH}/"
+install -m 0644 "${SOURCE_DIRECTORY}/operations/README.md" "${DOCUMENTATION_PATH}/operations.md"
+install -m 0644 "${SOURCE_DIRECTORY}"/operations/examples/* "${DOCUMENTATION_PATH}/examples/"
+
+if [[ ! -e ${CONFIG_PATH}/config.rb ]]; then
+  install -o root -g root -m 0640 \
+    "${SOURCE_DIRECTORY}/operations/examples/config.rb" "${CONFIG_PATH}/config.rb"
+fi
+
+umask 022
+{
+  printf 'PATH=%s/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin\n' "${RUBY_HOME}"
+  printf 'GEM_HOME=%s\n' "${GEM_HOME_PATH}"
+  printf 'GEM_PATH=%s\n' "${GEM_HOME_PATH}"
+  printf 'BACKUP_SOURCE=%s\n' "${SOURCE_URL}"
+  printf 'BACKUP_SOURCE_REVISION=%s\n' "${SOURCE_REVISION}"
+  printf 'BACKUP_ENGINE_VERSION=%s\n' "${ENGINE_VERSION}"
+} > "${INSTALL_ROOT}/install.env"
+chmod 0644 "${INSTALL_ROOT}/install.env"
+
+systemctl daemon-reload
+
+echo "Installed pelcasandra/backup ${ENGINE_VERSION} from ${SOURCE_REVISION}."
+echo "Create host models and credentials, validate them, then enable selected instance timers."

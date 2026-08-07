@@ -1,0 +1,19 @@
+  ##
+  # Durable Outbox with S3-compatible upload [Storage]
+  #
+  store_with Outbox do |outbox|
+    outbox.path      = '~/backups'
+    outbox.retention = 86_400
+
+    outbox.upload_with S3 do |s3|
+      s3.access_key_id     = ENV.fetch('S3_ACCESS_KEY_ID')
+      s3.secret_access_key = ENV.fetch('S3_SECRET_ACCESS_KEY')
+      s3.region            = 'us-east-1'
+      s3.bucket            = 'bucket-name'
+      s3.path              = 'backups'
+      s3.chunk_size        = 64
+      s3.max_retries       = 5
+      s3.retry_waitsec     = 30
+      s3.storage_class     = :standard
+    end
+  end

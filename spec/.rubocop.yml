@@ -6,5 +6,5 @@ inherit_from: ../.rubocop.yml
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 
-Style/IndentHeredoc:
+Layout/HeredocIndentation:
   Enabled: false

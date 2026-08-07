@@ -207,7 +207,7 @@ module Backup
         headers["x-amz-server-side-encryption"] = enc unless enc.empty?
 
         sc = storage_class.to_s.upcase
-        headers["x-amz-storage-class"] = sc unless sc.empty? || sc == "STANDARD"
+        headers["x-amz-storage-class"] = sc unless sc.empty?
 
         headers
       end
