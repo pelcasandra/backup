@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SOURCE_DIRECTORY=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-RUBY_HOME=${RUBY_HOME:-/root/.rbenv/versions/4.0.6}
+RUBY_HOME=${RUBY_HOME:-/root/.rbenv/versions/4.0.10}
 RUBY_BIN=${RUBY_HOME}/bin/ruby
 GEM_BIN=${RUBY_HOME}/bin/gem
 INSTALL_ROOT=/opt/pelcasandra-backup
