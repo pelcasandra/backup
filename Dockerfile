@@ -1,4 +1,4 @@
-FROM ruby:4.0.6-bookworm
+FROM ruby:4.0.10-bookworm
 
 ## 1. Image metadata ##
  LABEL maintainer="stuart@stuartellis.name" \

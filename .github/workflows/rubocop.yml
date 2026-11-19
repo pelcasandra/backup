@@ -22,9 +22,9 @@ jobs:
       - name: Install deps
         run: sudo apt-get install -qf libcurl4-openssl-dev
       - name: Install ruby
-        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
         with:
-          ruby-version: '4.0.6'
+          ruby-version: '4.0.10'
           bundler-cache: true
       - name: Run tests
         run: bundle exec rubocop
